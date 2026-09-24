@@ -1,0 +1,11 @@
+americano(west).
+misil(m1).
+tiene(corea_del_sur, m1).
+hostil(corea_del_sur).
+arma(X) :- misil(X).
+vende(west, m1, corea_del_sur).
+criminal(X) :-
+    americano(X),
+    arma(Y),
+    vende(X, Y, Z),
+    hostil(Z).
