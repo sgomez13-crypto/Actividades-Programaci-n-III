@@ -1,0 +1,28 @@
+%Familia Paterna
+
+espadre1de(abraham,homero).
+espadre1de(abraham,herbert).
+espadre1de(homero,bart).
+espadre1de(homero,lisa).
+espadre1de(homero,maggie).
+esmadre1de(mona,homero).
+esmadre1de(mona,herbert).
+%Famiia Materna
+
+espadrede(clancy,marge).
+espadrede(clancy,patty).
+espadrede(clancy,selma).
+esmadrede(jacqueline,marge).
+esmadrede(jacqueline,patty).
+esmadrede(jacqueline,selma).
+esmadrede(marge,bart).
+esmadrede(marge,lisa).
+esmadrede(marge,maggie).
+esmadrede(selma,ling).
+
+abuelo1de(A,C) :- espadre1de(A,B), espadre1de(B,C).
+abuela1de(A,C) :- esmadre1de(A,B), espadre1de(B,C).
+abuelode(A,C) :- espadrede(A,B), esmadrede(B,C).
+abuelade(A,C) :- esmadrede(A,B), esmadrede(B,C).
+abuelo(A,B) :- abuelo1de(A,B) ; abuelode(A,B).
+abuela(A,B) :- abuela1de(A,B) ; abuelade(A,B).
