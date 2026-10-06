@@ -1,0 +1,31 @@
+hasta(vancouver,edmonton,16).
+hasta(edmonton,saskatoon,12).
+hasta(saskatoon,winnipeg,20).
+hasta(saskatoon,calgary,9).
+hasta(vancouver,calgary,13).
+hasta(calgary,edmonton,4).
+hasta(calgary,regina,14).
+hasta(regina,saskatoon,7).
+hasta(regina,winnipeg,4).
+
+camino(X,Y,_) :- camino(X,Y,[X],_).
+
+camino(X,Y,Vis,_) :-
+    hasta(X,Y,_),
+    \+ member(Y,Vis).
+camino(X,Y,Vis,_) :-
+    hasta(X,Z,_),
+    \+ member(Z,Vis),
+    camino(Z,Y,[Z|Vis]).
+
+costo(X,Y,C) :- costo(X,Y,[X],C).
+costo(X,Y,Vis,C) :-
+    hasta(X,Y,C),
+    \+ member(Y,Vis).
+costo(X,Y,Vis,C) :-
+    hasta(X,Z,C0),
+    \+ member(Z,Vis),
+    costo(Z,Y,[Z|Vis],C1),
+    C is C0 + C1.
+
+tiene_aristas(N) :- ( hasta(N, _, _) ; hasta(_, N, _) ), !.
