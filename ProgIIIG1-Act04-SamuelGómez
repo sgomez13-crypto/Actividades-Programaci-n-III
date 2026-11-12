@@ -1,0 +1,123 @@
+import itertools as it
+
+def AllDif(var_doms):
+    """Elimina valores ya asignados de otras variables"""
+    for var in var_doms.keys():
+        if len(var_doms[var]) == 1:
+            valor_asignado = next(iter(var_doms[var]))
+            for var2 in var_doms.keys():
+                if var != var2:
+                    var_doms[var2].discard(valor_asignado)
+
+def GTval(var_doms, var, val):
+    """Mantiene solo valores mayores que val"""
+    var_doms[var] = {v for v in var_doms[var] if v > val}
+
+def LTval(var_doms, var, val):
+    """Mantiene solo valores menores que val"""
+    var_doms[var] = {v for v in var_doms[var] if v < val}
+
+def consistence(var_doms, constraints):
+    """Aplica todas las restricciones al dominio de variables"""
+    for constraint in constraints:
+        if constraint[0] == 'AllDif':
+            AllDif(var_doms)
+        elif constraint[0] == 'LTval':
+            LTval(var_doms, constraint[1][0], constraint[2])
+        elif constraint[0] == 'GTval':
+            GTval(var_doms, constraint[1][0], constraint[2])
+
+def generar_permutaciones(var_doms):
+    """Genera todas las asignaciones válidas usando backtracking"""
+    letras = list(var_doms.keys())
+    soluciones = []
+
+    def backtrack(asignacion, usados, i):
+        if i == len(letras):
+            soluciones.append(asignacion.copy())
+            return
+
+        letra = letras[i]
+        for valor in var_doms[letra]:
+            if valor not in usados:
+                asignacion[letra] = valor
+                usados.add(valor)
+                backtrack(asignacion, usados, i + 1)
+                usados.remove(valor)
+                del asignacion[letra]
+
+    backtrack({}, set(), 0)
+    return soluciones
+
+def palabra_a_numero(palabra, perm):
+    """Convierte una palabra en número según la permutación"""
+    numero = 0
+    for letra in palabra:
+        numero = numero * 10 + perm[letra]
+    return numero
+
+def resolver_criptaritmo(palabra1, palabra2, resultado):
+    """
+    Resuelve un criptaritmo de la forma: palabra1 + palabra2 = resultado
+    
+    Ejemplo:
+        resolver_criptaritmo("SEND", "MORE", "MONEY")
+        resolver_criptaritmo("CROSS", "ROADS", "DANGER")
+    """
+    # Todas las letras únicas
+    words = palabra1 + palabra2 + resultado
+    var_doms = {letra: set(range(10)) for letra in set(words)}
+    
+    # Restricción: las primeras letras no pueden ser 0
+    primeras_letras = {palabra1[0], palabra2[0], resultado[0]}
+    for letra in primeras_letras:
+        var_doms[letra].discard(0)
+    
+    # Restricciones básicas
+    constraints = [('AllDif',)]
+    
+    # Aplicar restricciones de consistencia
+    consistence(var_doms, constraints)
+    
+    # Generar permutaciones válidas
+    print(f"Resolviendo: {palabra1} + {palabra2} = {resultado}")
+    print(f"Dominios después de restricciones: {var_doms}")
+    
+    perms = generar_permutaciones(var_doms)
+    print(f"Permutaciones a revisar: {len(perms)}")
+    
+    # Verificar soluciones
+    soluciones = []
+    for perm in perms:
+        num1 = palabra_a_numero(palabra1, perm)
+        num2 = palabra_a_numero(palabra2, perm)
+        num_resultado = palabra_a_numero(resultado, perm)
+        
+        if num1 + num2 == num_resultado:
+            soluciones.append(perm)
+            print(f"\n✓ Solución encontrada:")
+            print(f"  {palabra1} = {num1}")
+            print(f"  {palabra2} = {num2}")
+            print(f"  {resultado} = {num_resultado}")
+            print(f"  Asignación: {perm}")
+    
+    if not soluciones:
+        print("\n✗ No se encontraron soluciones")
+    
+    return soluciones
+
+# Ejemplos de uso:
+print("=" * 50)
+print("EJEMPLO 1: SEND + MORE = MONEY")
+print("=" * 50)
+resolver_criptaritmo("SEND", "MORE", "MONEY")
+
+print("\n" + "=" * 50)
+print("EJEMPLO 2: CROSS + ROADS = DANGER")
+print("=" * 50)
+resolver_criptaritmo("CROSS", "ROADS", "DANGER")
+
+print("\n" + "=" * 50)
+print("EJEMPLO 3: EAT + THAT = APPLE")
+print("=" * 50)
+resolver_criptaritmo("EAT", "THAT", "APPLE")
